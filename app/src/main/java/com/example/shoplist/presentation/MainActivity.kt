@@ -2,29 +2,47 @@ package com.example.shoplist.presentation
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplist.R
+import com.example.shoplist.domain.ShopItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var shopListAdapter: ShopListAdapter
+    private lateinit var btn: FloatingActionButton
+    private var txt = ""
+    private lateinit var startForResult: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        btn = findViewById(R.id.addBtn)
+        startForResult = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data?.getStringExtra("key")
+                txt = intent.toString()
+                viewModel.addShopItem(
+                    ShopItem(
+                        txt,
+                        2,
+                        true
+                    )
+                )
+            }
+        }
         viewModel.shopList.observe(this){
             shopListAdapter.submitList(it)
         }
@@ -77,9 +95,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUpListeners() {
         shopListAdapter.onShopClickListener = {
-            viewModel.changeEnableState(it)
+//            viewModel.changeEnableState(it)
             Log.e("tag", "setUpRecycler: $it")
         }
+
+        btn.setOnClickListener {
+//            viewModel.addShopItem(ShopItem("ssss",2,true))
+            startForResult.launch(Intent(this,ShopItemActivity::class.java))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Toast.makeText(this, txt, Toast.LENGTH_SHORT).show()
     }
 
 }

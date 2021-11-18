@@ -41,7 +41,7 @@ class ShopListAdapter: androidx.recyclerview.widget.ListAdapter
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
-        return if (item.enable){
+        return if (item.enabled){
             VIEW_TYPE_ENABLE
         }else{
             VIEW_TYPE_DISABLE
@@ -52,12 +52,10 @@ class ShopListAdapter: androidx.recyclerview.widget.ListAdapter
     class ShopItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val name = itemView.findViewById<TextView>(R.id.tv_name)
         private val count = itemView.findViewById<TextView>(R.id.tv_count)
-
         fun onBind(shopItem: ShopItem) {
                 name.text = shopItem.name
                 count.text = shopItem.count.toString()
         }
-
     }
 
     companion object{
